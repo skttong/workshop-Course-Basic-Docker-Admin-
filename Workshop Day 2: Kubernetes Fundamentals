@@ -1,0 +1,158 @@
+**Workshop Day 2: Kubernetes Fundamentals** 
+---
+
+### **Session 1: Setting Up Minikube on Docker Desktop**
+
+#### **กิจกรรม**: ติดตั้งและเริ่มใช้งาน Minikube บน Docker Desktop
+
+1. **ขั้นตอนการปฏิบัติ**:
+   - เปิด Terminal และติดตั้ง Minikube ด้วยคำสั่ง:
+     ```bash
+     minikube start --driver=docker
+     ```
+   - สร้าง Cluster และตรวจสอบสถานะด้วยคำสั่ง:
+     ```bash
+     kubectl get nodes
+     ```
+   - ใช้คำสั่ง `minikube status` เพื่อตรวจสอบว่า Minikube และ Cluster ทำงานได้อย่างถูกต้อง
+
+
+---
+
+### **Session 2: Understanding Basic Kube-Objects**
+
+#### **กิจกรรม**: แนะนำ Kube-Object พื้นฐาน เช่น Pod, Node, และ Service
+
+1. **ขั้นตอนการปฏิบัติ**:
+   - สร้าง Pod ง่าย ๆ โดยใช้คำสั่ง `kubectl`:
+     ```bash
+     kubectl run my-pod --image=nginx
+     ```
+   - ตรวจสอบสถานะของ Pod ด้วยคำสั่ง:
+     ```bash
+     kubectl get pods
+     ```
+   - สร้าง Service เพื่อเชื่อมต่อกับ Pod:
+     ```bash
+     kubectl expose pod my-pod --port=80 --type=NodePort
+     ```
+   - ใช้คำสั่ง `kubectl describe pod my-pod` เพื่อดูรายละเอียดของ Pod
+
+
+---
+
+### **Session 3: Working with Persistent Volumes (PV) and Persistent Volume Claims (PVC)**
+
+#### **กิจกรรม**: ฝึกสร้าง PV และ PVC สำหรับเก็บข้อมูลใน Cluster
+
+1. **ขั้นตอนการปฏิบัติ**:
+   - สร้างไฟล์ `pv.yaml` สำหรับกำหนด Persistent Volume:
+     ```yaml
+     apiVersion: v1
+     kind: PersistentVolume
+     metadata:
+       name: my-pv
+     spec:
+       capacity:
+         storage: 1Gi
+       accessModes:
+         - ReadWriteOnce
+       hostPath:
+         path: "/mnt/data"
+     ```
+   - สร้างไฟล์ `pvc.yaml` สำหรับกำหนด Persistent Volume Claim:
+     ```yaml
+     apiVersion: v1
+     kind: PersistentVolumeClaim
+     metadata:
+       name: my-pvc
+     spec:
+       accessModes:
+         - ReadWriteOnce
+       resources:
+         requests:
+           storage: 500Mi
+     ```
+   - ใช้คำสั่ง `kubectl apply -f pv.yaml` และ `kubectl apply -f pvc.yaml` เพื่อสร้าง PV และ PVC
+   - ตรวจสอบสถานะของ PV และ PVC ด้วยคำสั่ง:
+     ```bash
+     kubectl get pv
+     kubectl get pvc
+     ```
+
+---
+
+### **Session 4: Configuring Environment Variables for Applications**
+
+#### **กิจกรรม**: ตั้งค่า Environment Variables ใน Deployment YAML
+
+1. **ขั้นตอนการปฏิบัติ**:
+   - สร้างไฟล์ `deployment.yaml` เพื่อกำหนด Environment Variables:
+     ```yaml
+     apiVersion: apps/v1
+     kind: Deployment
+     metadata:
+       name: env-demo
+     spec:
+       replicas: 1
+       selector:
+         matchLabels:
+           app: env-demo
+       template:
+         metadata:
+           labels:
+             app: env-demo
+         spec:
+           containers:
+           - name: env-demo
+             image: nginx
+             env:
+             - name: ENV_VAR_EXAMPLE
+               value: "This is an environment variable"
+     ```
+   - ใช้คำสั่ง `kubectl apply -f deployment.yaml` เพื่อติดตั้ง Deployment
+   - ตรวจสอบว่าค่า Environment Variable ถูกตั้งค่าใน Pod ด้วยคำสั่ง:
+     ```bash
+     kubectl exec -it <pod-name> -- printenv ENV_VAR_EXAMPLE
+     ```
+
+
+---
+
+### **Session 5: High Availability and Scaling with Kubernetes**
+
+#### **กิจกรรม**: สร้าง Deployment ที่มี Replica เพื่อเพิ่มความสามารถในการรองรับโหลด
+
+1. **ขั้นตอนการปฏิบัติ**:
+   - สร้างไฟล์ `scaling-deployment.yaml` เพื่อกำหนด Replica ของแอปพลิเคชัน:
+     ```yaml
+     apiVersion: apps/v1
+     kind: Deployment
+     metadata:
+       name: high-availability-demo
+     spec:
+       replicas: 3
+       selector:
+         matchLabels:
+           app: high-availability-demo
+       template:
+         metadata:
+           labels:
+             app: high-availability-demo
+         spec:
+           containers:
+           - name: high-availability-demo
+             image: nginx
+     ```
+   - ใช้คำสั่ง `kubectl apply -f scaling-deployment.yaml` เพื่อติดตั้ง Deployment
+   - ตรวจสอบการกระจายโหลดของแอปพลิเคชันและการทำงานของ Pods ด้วยคำสั่ง:
+     ```bash
+     kubectl get pods -o wide
+     ```
+   - ทดสอบการ Scale โดยเพิ่ม Replica ด้วยคำสั่ง:
+     ```bash
+     kubectl scale deployment high-availability-demo --replicas=5
+     ```
+
+---
+
