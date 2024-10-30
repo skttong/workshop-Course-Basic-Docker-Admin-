@@ -1,0 +1,149 @@
+**Workshop Day 1: Docker Essentials** 
+---
+
+### **Session 1: Introduction to Container and Docker**
+
+#### **กิจกรรม**: แนะนำแนวคิดพื้นฐานของ Container และ Docker ผ่านการอธิบายและการสาธิต
+1. **ขั้นตอนการปฏิบัติ**:
+   - เปิด Terminal และรันคำสั่งเพื่อตรวจสอบการติดตั้ง Docker:
+     ```bash
+     docker --version
+     ```
+   - ตรวจสอบการติดตั้ง Docker โดยใช้คำสั่ง `docker run hello-world`:
+     ```bash
+     docker run hello-world
+     ```
+   - **ผลลัพธ์**: หากติดตั้ง Docker สำเร็จ จะเห็นข้อความ “Hello from Docker!” แสดงบนหน้าจอ
+
+
+---
+
+### **Session 2: Exploring Docker Images, Containers, and Registries**
+
+#### **กิจกรรม**: ทำความรู้จักกับ Docker Images และ Containers
+1. **ขั้นตอนการปฏิบัติ**:
+   - ดาวน์โหลด Docker Image ของ NGINX จาก Docker Hub:
+     ```bash
+     docker pull nginx
+     ```
+   - รัน NGINX Container ด้วยการเชื่อมพอร์ต 80 ของ Container กับพอร์ต 80 ของ Host:
+     ```bash
+     docker run -d -p 80:80 nginx
+     ```
+   - เปิดเบราว์เซอร์และเข้า `http://localhost` เพื่อดูผลลัพธ์ของการรัน NGINX Container
+
+2. **ผลลัพธ์**:
+   - หากรันสำเร็จ จะเห็นหน้าเว็บ NGINX แสดงบนเบราว์เซอร์ที่ `http://localhost`
+  
+
+
+---
+
+### **Session 3: Docker Commands and Docker Compose**
+
+#### **กิจกรรม**: ฝึกใช้คำสั่ง Docker พื้นฐาน เช่น `docker ps`, `docker stop`, `docker rm`, และ `docker exec`
+1. **ขั้นตอนการปฏิบัติ**:
+   - ตรวจสอบ Container ที่กำลังรันอยู่:
+     ```bash
+     docker ps
+     ```
+   - หยุด Container:
+     ```bash
+     docker stop <container_id>
+     ```
+   - ลบ Container ที่หยุดแล้ว:
+     ```bash
+     docker rm <container_id>
+     ```
+
+2. **สร้างไฟล์ `docker-compose.yml`**:
+   - สร้างไฟล์ `docker-compose.yml` เพื่อรัน Multi-Container Application:
+     ```yaml
+     version: '3'
+     services:
+       web:
+         image: nginx
+         ports:
+           - "80:80"
+       db:
+         image: mysql:5.7
+         environment:
+           MYSQL_ROOT_PASSWORD: example
+     ```
+
+   - รัน Multi-Container Application ด้วยคำสั่ง:
+     ```bash
+     docker-compose up -d
+     ```
+   - ตรวจสอบการทำงานของบริการทั้งสองด้วยคำสั่ง `docker-compose ps`
+
+
+---
+
+### **Session 4: Building with Dockerfile**
+
+#### **กิจกรรม**: สร้าง Docker Image ด้วย Dockerfile
+1. **ขั้นตอนการปฏิบัติ**:
+   - สร้างไฟล์ `Dockerfile` โดยใส่เนื้อหาดังนี้:
+     ```Dockerfile
+     # Base image
+     FROM nginx
+     # Copy index.html to the web server
+     COPY index.html /usr/share/nginx/html/index.html
+     ```
+   - สร้างไฟล์ `index.html` ที่อยู่ในโฟลเดอร์เดียวกับ Dockerfile และใส่เนื้อหาเช่น `<h1>Hello from Custom NGINX!</h1>`
+   - สร้าง Docker Image จาก Dockerfile:
+     ```bash
+     docker build -t my-nginx .
+     ```
+   - รัน Container จาก Image ที่สร้างขึ้น:
+     ```bash
+     docker run -d -p 8080:80 my-nginx
+     ```
+   - เปิดเบราว์เซอร์ที่ `http://localhost:8080` เพื่อดูหน้าเว็บที่แก้ไขแล้ว
+
+
+---
+
+### **Session 5: Health Check และ Scaling**
+
+#### **กิจกรรม**: ตั้งค่าการ Health Check และ Scaling Container
+1. **ขั้นตอนการปฏิบัติ**:
+   - สร้าง Health Check ใน Dockerfile (ตัวอย่างใน `Dockerfile` ของ Custom NGINX)
+     ```Dockerfile
+     # Base image
+     FROM nginx
+     # Health check command
+     HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost || exit 1
+     ```
+   - Build Image ใหม่:
+     ```bash
+     docker build -t my-nginx-healthcheck .
+     ```
+
+2. **เพิ่ม Replica ด้วย Docker Compose**:
+   - แก้ไข `docker-compose.yml` เพื่อตั้งค่า Replica:
+     ```yaml
+     version: '3'
+     services:
+       web:
+         image: my-nginx-healthcheck
+         ports:
+           - "80:80"
+         deploy:
+           replicas: 3
+           update_config:
+             parallelism: 2
+           restart_policy:
+             condition: on-failure
+     ```
+   - รัน Docker Compose พร้อม Replica:
+     ```bash
+     docker-compose up -d
+     ```
+
+3. **ตรวจสอบผลลัพธ์**:
+   - ตรวจสอบสถานะของ Replica ด้วยคำสั่ง `docker-compose ps`
+   - ใช้คำสั่ง `docker inspect <container_id>` เพื่อตรวจสอบ Health Check ของแต่ละ Container
+
+
