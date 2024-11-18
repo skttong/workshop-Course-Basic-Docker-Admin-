@@ -1,0 +1,20 @@
+version: '3.8'  # ระบุเวอร์ชันของ Docker Compose
+
+services:       # กำหนดบริการ (services) ต่าง ๆ
+  hello-world:  # ชื่อของ service (เปลี่ยนได้ตามต้องการ)
+    image: nginx:alpine  # ใช้ image "nginx" รุ่น "alpine" จาก Docker Hub
+    container_name: hello-world-container  # ชื่อ container (เปลี่ยนได้)
+    ports:       # การแมปพอร์ต (Port Mapping)
+      - "8080:80"  # พอร์ต 8080 บนเครื่องโฮสต์ -> พอร์ต 80 ใน container
+    volumes:     # กำหนด volume สำหรับเก็บไฟล์
+      - ./html:/usr/share/nginx/html  # โฟลเดอร์ `html` บนเครื่องโฮสต์ -> `/usr/share/nginx/html` ใน container
+    environment: # ตัวแปรสภาพแวดล้อม (Environment Variables)
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    restart: always  # ตั้งให้ container รีสตาร์ทอัตโนมัติเมื่อมีข้อผิดพลาด
+    networks:    # เชื่อมต่อ container กับ network ที่ระบุ
+      - hello-world-network
+
+networks:       # การกำหนด network
+  hello-world-network:
+    driver: bridge  # ใช้ network driver แบบ bridge
