@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const app = express();
-const PORT = 5000;
+const PORT = 6000;
 
 // Connect to MongoDB
 const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/mydatabase";

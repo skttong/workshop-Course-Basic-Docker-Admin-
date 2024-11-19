@@ -7,6 +7,8 @@ WORKDIR /app
 # คัดลอกไฟล์ Package และติดตั้ง Dependencies
 COPY package.json ./
 RUN npm install
+RUN npm install express --save
+
 
 # คัดลอกไฟล์ทั้งหมดไปยัง Container
 COPY . .
