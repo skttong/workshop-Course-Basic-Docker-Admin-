@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-app
+  template:
+    metadata:
+      labels:
+        app: react-app
+    spec:
+      containers:
+      - name: react-app
+        image: node:18
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: app-source
+          mountPath: /app
+        command: ["sh", "-c", "npm install && npm start"]
+      volumes:
+      - name: app-source
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-app
+spec:
+  selector:
+    app: react-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: NodePort
